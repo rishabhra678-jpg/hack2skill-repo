@@ -1,0 +1,3 @@
+"""
+NutriMind – Package init
+"""

@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="NutriMind – AI Food Decision Coach. Make smarter food choices with AI-powered nutrition intelligence.">
+    <meta name="theme-color" content="#0a0e17">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>NutriMind – AI Food Decision Coach</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="app-container" id="app">
+
+    <!-- ═══════════════════════════════════════
+         LOADING OVERLAY
+         ═══════════════════════════════════════ -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text" id="loadingText">Loading...</div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         TOAST NOTIFICATION
+         ═══════════════════════════════════════ -->
+    <div class="toast" id="toast">
+        <span class="toast-icon" id="toastIcon">✅</span>
+        <span id="toastText"></span>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         BADGE UNLOCK MODAL
+         ═══════════════════════════════════════ -->
+    <div class="badge-modal-overlay" id="badgeModal">
+        <div class="badge-modal">
+            <div class="badge-modal-confetti" id="confettiCanvas"></div>
+            <div class="badge-modal-glow"></div>
+            <div class="badge-modal-icon" id="badgeModalIcon">🏆</div>
+            <div class="badge-modal-title">Badge Unlocked!</div>
+            <div class="badge-modal-name" id="badgeModalName">Achievement</div>
+            <div class="badge-modal-desc" id="badgeModalDesc">You earned a new badge!</div>
+            <div class="badge-modal-points">+50 ⭐ Points</div>
+            <button class="btn btn-primary btn-full mt-20" onclick="closeBadgeModal()" id="btn-badge-close">
+                Awesome! 🎉
+            </button>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         RECIPE MODAL
+         ═══════════════════════════════════════ -->
+    <div class="modal-overlay" id="recipeModal">
+        <div class="modal-content recipe-modal">
+            <div class="modal-close" onclick="closeRecipeModal()">×</div>
+            <div class="recipe-header">
+                <h2 id="recipeTitle">Recipe</h2>
+                <div class="recipe-meta">
+                    <span id="recipeTime">15 min</span> • <span id="recipeDifficulty">Easy</span>
+                </div>
+            </div>
+            <div class="recipe-section">
+                <h3>🛒 Ingredients</h3>
+                <ul id="recipeIngredients"></ul>
+            </div>
+            <div class="recipe-section">
+                <h3>👨‍🍳 Instructions</h3>
+                <ol id="recipeInstructions"></ol>
+            </div>
+            <div class="recipe-tip" id="recipeTip"></div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         GROCERY LIST MODAL
+         ═══════════════════════════════════════ -->
+    <div class="modal-overlay" id="groceryModal">
+        <div class="modal-content">
+            <div class="modal-close" onclick="closeGroceryModal()">×</div>
+            <h2 class="mb-20">🛒 Weekly Grocery List</h2>
+            <div id="groceryListContent"></div>
+            <button class="btn btn-primary btn-full mt-20" onclick="closeGroceryModal()">Got it! 👍</button>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         NOTIFICATIONS DRAWER
+         ═══════════════════════════════════════ -->
+    <div class="notification-drawer" id="notificationDrawer">
+        <div class="notification-drawer-content">
+            <div class="notification-drawer-header">
+                <h2>🔔 Smart Nudges</h2>
+                <button class="modal-close" onclick="closeNotifications()" style="position:static;">×</button>
+            </div>
+            <div id="notificationList" class="notification-list">
+                <div class="empty-state">
+                    <div class="empty-icon">🔕</div>
+                    <div class="empty-text">No notifications yet. Start logging to get nudges!</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         SCREEN 1: WELCOME / SPLASH
+         ═══════════════════════════════════════ -->
+    <div class="screen active" id="screen-welcome">
+        <div class="splash-content">
+            <div class="splash-particles" id="splashParticles"></div>
+            <div class="splash-logo-container">
+                <div class="splash-logo-ring"></div>
+                <div class="splash-logo">🧠</div>
+            </div>
+            <h1 class="splash-title">NutriMind</h1>
+            <p class="splash-tagline">AI Food Decision Coach</p>
+            <p class="splash-subtitle">Make smarter food choices with AI‑powered nutrition intelligence, behavioral tracking & gamified motivation.</p>
+            <div class="splash-features">
+                <div class="splash-feature" style="animation-delay:0.1s;">
+                    <span class="feature-icon">📸</span>
+                    <span>Scan food to get instant nutrition insights</span>
+                </div>
+                <div class="splash-feature" style="animation-delay:0.2s;">
+                    <span class="feature-icon">🎯</span>
+                    <span>Personalized recommendations for your goals</span>
+                </div>
+                <div class="splash-feature" style="animation-delay:0.3s;">
+                    <span class="feature-icon">🏆</span>
+                    <span>Track progress and earn achievement badges</span>
+                </div>
+                <div class="splash-feature" style="animation-delay:0.4s;">
+                    <span class="feature-icon">🎤</span>
+                    <span>Voice-powered — just ask "What should I eat?"</span>
+                </div>
+            </div>
+            <button class="btn btn-primary btn-lg btn-full btn-glow" onclick="showScreen('screen-auth')" id="btn-get-started">
+                Get Started 🚀
+            </button>
+            <button class="btn btn-ghost mt-10" onclick="showAuthMode('login')" id="btn-already-account">
+                Already have an account? Log in
+            </button>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         SCREEN 2: AUTH (LOGIN/SIGNUP)
+         ═══════════════════════════════════════ -->
+    <div class="screen" id="screen-auth">
+        <div class="auth-header">
+            <div class="auth-icon" id="authIcon">🔐</div>
+            <h1 id="authTitle">Create Account</h1>
+            <p id="authSubtitle">Start your healthy eating journey</p>
+        </div>
+
+        <div class="auth-error" id="authError"></div>
+
+        <form class="auth-form" id="authForm" onsubmit="handleAuth(event)">
+            <div class="input-group" id="nameGroup">
+                <label for="authName">Full Name</label>
+                <input type="text" class="input-field" id="authName" placeholder="Your name" autocomplete="name">
+            </div>
+            <div class="input-group">
+                <label for="authEmail">Email Address</label>
+                <input type="email" class="input-field" id="authEmail" placeholder="hello@example.com" required autocomplete="email">
+            </div>
+            <div class="input-group">
+                <label for="authPassword">Password</label>
+                <input type="password" class="input-field" id="authPassword" placeholder="Min 6 characters" required minlength="6" autocomplete="current-password">
+            </div>
+            <button type="submit" class="btn btn-primary btn-full btn-lg mt-10" id="authSubmitBtn">
+                Sign Up
+            </button>
+        </form>
+
+        <div class="auth-toggle">
+            <span id="authToggleText">Already have an account? </span>
+            <a onclick="toggleAuthMode()" id="authToggleLink">Log In</a>
+        </div>
+
+        <div class="demo-login-hint">
+            <span>🧪 Demo: <code>demo@nutrimind.ai</code> / <code>password123</code></span>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         SCREEN 3: PROFILE SETUP
+         ═══════════════════════════════════════ -->
+    <div class="screen" id="screen-setup">
+        <div class="setup-header">
+            <div class="setup-icon">👤</div>
+            <h1>Complete Your Profile</h1>
+            <p>Help us personalize your nutrition plan</p>
+        </div>
+
+        <form id="profileForm" onsubmit="handleProfileSetup(event)">
+            <div class="setup-row">
+                <div class="input-group">
+                    <label for="setupAge">Age</label>
+                    <input type="number" class="input-field" id="setupAge" placeholder="25" min="10" max="120">
+                </div>
+                <div class="input-group">
+                    <label for="setupGender">Gender</label>
+                    <select class="input-field" id="setupGender">
+                        <option value="">Select</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="setup-row">
+                <div class="input-group">
+                    <label for="setupWeight">Weight (kg)</label>
+                    <input type="number" class="input-field" id="setupWeight" placeholder="70" min="20" max="300" step="0.1">
+                </div>
+                <div class="input-group">
+                    <label for="setupHeight">Height (cm)</label>
+                    <input type="number" class="input-field" id="setupHeight" placeholder="170" min="100" max="250">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Your Goal</label>
+                <div class="chip-group" id="goalChips">
+                    <button type="button" class="chip" data-value="weight_loss" onclick="selectChip(this, 'goalChips')">🔥 Weight Loss</button>
+                    <button type="button" class="chip" data-value="muscle_gain" onclick="selectChip(this, 'goalChips')">💪 Muscle Gain</button>
+                    <button type="button" class="chip" data-value="maintenance" onclick="selectChip(this, 'goalChips')">⚖️ Maintenance</button>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Diet Preference</label>
+                <div class="chip-group" id="dietChips">
+                    <button type="button" class="chip" data-value="veg" onclick="selectChip(this, 'dietChips')">🥗 Vegetarian</button>
+                    <button type="button" class="chip" data-value="non_veg" onclick="selectChip(this, 'dietChips')">🍗 Non-Veg</button>
+                    <button type="button" class="chip" data-value="vegan" onclick="selectChip(this, 'dietChips')">🌿 Vegan</button>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Activity Level</label>
+                <div class="chip-group" id="activityChips">
+                    <button type="button" class="chip" data-value="sedentary" onclick="selectChip(this, 'activityChips')">🛋️ Sedentary</button>
+                    <button type="button" class="chip" data-value="moderate" onclick="selectChip(this, 'activityChips')">🚶 Moderate</button>
+                    <button type="button" class="chip" data-value="active" onclick="selectChip(this, 'activityChips')">🏃 Active</button>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="setupConditions">Health Conditions (optional)</label>
+                <input type="text" class="input-field" id="setupConditions" placeholder="e.g. diabetes, BP">
+            </div>
+
+            <button type="submit" class="btn btn-success btn-full btn-lg mt-20" id="btn-complete-setup">
+                🚀 Complete Setup
+            </button>
+        </form>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         SCREEN 4: DASHBOARD
+         ═══════════════════════════════════════ -->
+    <div class="screen" id="screen-dashboard">
+        <div class="dash-header">
+            <div>
+                <div class="dash-greeting">Good <span id="timeGreeting">morning</span> 👋</div>
+                <span class="user-name" id="dashUserName">User</span>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <button class="notification-bell" onclick="openNotifications()" id="btn-notifications" title="Smart Nudges">
+                    🔔
+                    <span class="notification-dot" id="notifDot" style="display:none;"></span>
+                </button>
+                <div class="points-display">
+                    <span class="points-icon">⭐</span>
+                    <span class="points-value" id="dashPoints">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Level Progress -->
+        <div class="level-bar" id="levelBar">
+            <div class="level-info">
+                <span class="level-badge" id="levelBadge">🌱 Beginner</span>
+                <span class="level-xp" id="levelXP">0 / 100 XP</span>
+            </div>
+            <div class="level-progress-track">
+                <div class="level-progress-fill" id="levelFill" style="width:0%;"></div>
+            </div>
+        </div>
+
+        <!-- Calorie Ring -->
+        <div class="calorie-ring-section">
+            <div class="progress-ring-container">
+                <svg width="180" height="180" viewBox="0 0 180 180">
+                    <circle cx="90" cy="90" r="78" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="10"/>
+                    <circle cx="90" cy="90" r="78" fill="none" stroke="url(#ringGrad)" stroke-width="10"
+                            stroke-linecap="round" stroke-dasharray="490" stroke-dashoffset="490"
+                            transform="rotate(-90 90 90)" id="calorieRing"/>
+                    <defs>
+                        <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#6366f1"/>
+                            <stop offset="50%" stop-color="#8b5cf6"/>
+                            <stop offset="100%" stop-color="#a855f7"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <div class="progress-ring-text">
+                    <div class="value" id="dashCalories">0</div>
+                    <div class="label">of <span id="dashTarget">2000</span> kcal</div>
+                </div>
+            </div>
+            <div class="calorie-status" id="calorieStatus">Start logging meals to track!</div>
+        </div>
+
+        <!-- Macros -->
+        <div class="macro-bar">
+            <div class="macro-item protein">
+                <div class="macro-icon">🥩</div>
+                <div class="macro-value" id="dashProtein">0g</div>
+                <div class="macro-label">Protein</div>
+            </div>
+            <div class="macro-item carbs">
+                <div class="macro-icon">🍞</div>
+                <div class="macro-value" id="dashCarbs">0g</div>
+                <div class="macro-label">Carbs</div>
+            </div>
+            <div class="macro-item fats">
+                <div class="macro-icon">🥑</div>
+                <div class="macro-value" id="dashFats">0g</div>
+                <div class="macro-label">Fats</div>
+            </div>
+            <div class="macro-item health-avg">
+                <div class="macro-icon">❤️</div>
+                <div class="macro-value" id="dashHealthScore">—</div>
+                <div class="macro-label">Health</div>
+            </div>
+        </div>
+
+        <!-- Streak + Water Row -->
+        <div class="tracker-row">
+            <div class="streak-display">
+                <span class="streak-fire">🔥</span>
+                <div>
+                    <div class="streak-count"><span id="dashStreak">0</span> days</div>
+                    <div class="streak-label">Streak</div>
+                </div>
+            </div>
+            <div class="water-display" onclick="logWater()">
+                <div class="water-wave-container">
+                    <div class="water-wave" id="waterWave"></div>
+                    <span class="water-icon">💧</span>
+                </div>
+                <div>
+                    <div class="water-count"><span id="dashWater">0</span>/<span id="dashWaterGoal">10</span></div>
+                    <div class="water-label">Glasses</div>
+                </div>
+                <button class="water-add-btn" onclick="event.stopPropagation();logWater()" id="btn-add-water" title="Add glass of water">+</button>
+            </div>
+        </div>
+
+        <!-- 7-Day Calorie Chart -->
+        <div class="section-title">📊 This Week</div>
+        <div class="calorie-chart" id="calorieChart">
+            <div class="chart-loading">Loading chart...</div>
+        </div>
+
+        <!-- Context Recommendations -->
+        <div class="section-title" id="recoTitle">🎯 Recommended for You</div>
+        <div id="recoMessage" class="nudge-card" style="display:none;">
+            <span class="nudge-icon">💡</span>
+            <span class="nudge-text" id="recoMessageText"></span>
+        </div>
+        <div id="recoList"></div>
+
+        <!-- AI Nudges -->
+        <div class="section-title">🧠 AI Insights</div>
+        <div id="nudgeList"></div>
+
+        <!-- Today's Logs -->
+        <div class="section-title">📋 Today's Meals</div>
+        <div class="today-logs" id="todayLogs">
+            <div class="empty-state">
+                <div class="empty-icon">🍽️</div>
+                <div class="empty-text">No meals logged today. Tap the scanner to add!</div>
+            </div>
+        </div>
+
+        <!-- Badges -->
+        <div class="section-title">🏅 Achievements</div>
+        <div class="badge-grid" id="badgeGrid">
+            <div class="empty-state">
+                <div class="empty-icon">🏆</div>
+                <div class="empty-text">Earn badges by logging meals and making healthy choices!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         SCREEN 5: AI FOOD SCANNER
+         ═══════════════════════════════════════ -->
+    <div class="screen" id="screen-scanner">
+        <div class="setup-header" style="padding-top:10px;">
+            <div class="setup-icon">📸</div>
+            <h1>AI Food Scanner</h1>
+            <p>Identify food & get nutrition insights</p>
+        </div>
+
+        <div class="scanner-area" id="scannerArea" onclick="document.getElementById('foodImageInput').click()">
+            <div class="scanner-crosshair">
+                <div class="crosshair-corner tl"></div>
+                <div class="crosshair-corner tr"></div>
+                <div class="crosshair-corner bl"></div>
+                <div class="crosshair-corner br"></div>
+            </div>
+            <div class="scanner-icon">📷</div>
+            <div class="scanner-text">Tap to upload a food photo</div>
+            <div class="scanner-sub">or use the text/voice search below</div>
+            <input type="file" id="foodImageInput" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
+        </div>
+
+        <!-- Image preview -->
+        <div id="imagePreview" style="display:none;margin-bottom:16px;text-align:center;">
+            <img id="previewImg" style="max-width:100%;max-height:200px;border-radius:var(--radius-md);border:1px solid var(--glass-border);" alt="Food preview">
+        </div>
+
+        <div class="scan-input-section">
+            <label style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:8px;display:block;">Or type/speak the food name</label>
+            <div class="scan-input-row">
+                <input type="text" class="input-field" id="foodNameInput" placeholder="e.g. pizza, salad, biryani..." list="foodSuggestions" autocomplete="off">
+                <datalist id="foodSuggestions"></datalist>
+                <button class="btn btn-voice" onclick="startVoiceInput()" id="btn-voice" title="Voice Input">
+                    🎤
+                </button>
+                <button class="btn btn-primary" onclick="scanFood()" id="btn-scan">🔍 Scan</button>
+            </div>
+            <div class="voice-status" id="voiceStatus" style="display:none;">
+                <div class="voice-pulse"></div>
+                <span>Listening...</span>
+            </div>
+        </div>
+
+        <!-- Scan Result -->
+        <div class="scan-result" id="scanResult">
+            <div class="scan-result-header">
+                <span class="food-title" id="resultFoodName">Pizza</span>
+                <span class="health-score" id="resultHealthScore">85</span>
+            </div>
+
+            <div class="ai-confidence" id="resultConfidence">AI Confidence: 95%</div>
+
+            <div class="warning-banner" id="resultWarning"></div>
+
+            <div class="macro-bar">
+                <div class="macro-item">
+                    <div class="macro-icon">🔥</div>
+                    <div class="macro-value" id="resultCalories">0</div>
+                    <div class="macro-label">Calories</div>
+                </div>
+                <div class="macro-item protein">
+                    <div class="macro-icon">🥩</div>
+                    <div class="macro-value" id="resultProtein">0g</div>
+                    <div class="macro-label">Protein</div>
+                </div>
+                <div class="macro-item carbs">
+                    <div class="macro-icon">🍞</div>
+                    <div class="macro-value" id="resultCarbs">0g</div>
+                    <div class="macro-label">Carbs</div>
+                </div>
+                <div class="macro-item fats">
+                    <div class="macro-icon">🥑</div>
+                    <div class="macro-value" id="resultFats">0g</div>
+                    <div class="macro-label">Fats</div>
+                </div>
+            </div>
+
+            <!-- Meal type selector -->
+            <div class="meal-type-selector">
+                <label style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:8px;display:block;">Meal Type</label>
+                <div class="chip-group" id="mealTypeChips">
+                    <button type="button" class="chip" data-value="breakfast" onclick="selectChip(this, 'mealTypeChips')">🌅 Breakfast</button>
+                    <button type="button" class="chip" data-value="lunch" onclick="selectChip(this, 'mealTypeChips')">☀️ Lunch</button>
+                    <button type="button" class="chip" data-value="dinner" onclick="selectChip(this, 'mealTypeChips')">🌙 Dinner</button>
+                    <button type="button" class="chip" data-value="snack" onclick="selectChip(this, 'mealTypeChips')">🍪 Snack</button>
+                </div>
+            </div>
+
+            <!-- Log button -->
+            <button class="btn btn-success btn-full mt-20" onclick="logScannedFood()" id="btn-log-food">
+                ✅ Log This Meal
+            </button>
+
+            <!-- Healthier Alternatives -->
+            <div class="alternatives-section" id="alternativesSection">
+                <div class="alternatives-title">
+                    <span>🌿</span> Healthier Alternatives
+                </div>
+                <div id="alternativesList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         SCREEN 6: MEAL PLANNER
+         ═══════════════════════════════════════ -->
+    <div class="screen" id="screen-mealplan">
+        <div class="setup-header" style="padding-top:10px;">
+            <div class="setup-icon">📅</div>
+            <h1>Weekly Meal Plan</h1>
+            <p>AI-generated plan tailored for you</p>
+        </div>
+
+        <div style="display:flex;gap:10px;">
+            <button class="btn btn-primary btn-full mb-20" onclick="generateMealPlan()" id="btn-generate-plan">
+                ✨ Generate My Plan
+            </button>
+            <button class="btn btn-secondary mb-20" onclick="showGroceryList()" id="btn-show-grocery" title="View Grocery List">
+                🛒
+            </button>
+        </div>
+
+        <!-- Budget toggle -->
+        <div class="budget-toggle mb-20">
+            <label class="toggle-label">
+                <input type="checkbox" id="budgetToggle" checked>
+                <span class="toggle-slider"></span>
+                <span class="toggle-text">🎓 Student Budget Mode</span>
+            </label>
+        </div>
+
+        <!-- Day Tabs -->
+        <div class="day-tabs" id="dayTabs" style="display:none;">
+            <button class="day-tab active" data-day="0" onclick="showMealDay(0)">Mon</button>
+            <button class="day-tab" data-day="1" onclick="showMealDay(1)">Tue</button>
+            <button class="day-tab" data-day="2" onclick="showMealDay(2)">Wed</button>
+            <button class="day-tab" data-day="3" onclick="showMealDay(3)">Thu</button>
+            <button class="day-tab" data-day="4" onclick="showMealDay(4)">Fri</button>
+            <button class="day-tab" data-day="5" onclick="showMealDay(5)">Sat</button>
+            <button class="day-tab" data-day="6" onclick="showMealDay(6)">Sun</button>
+        </div>
+
+        <div id="mealPlanContainer">
+            <div class="empty-state">
+                <div class="empty-icon">📋</div>
+                <div class="empty-text">Tap the button above to generate your personalized weekly meal plan!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         SCREEN 7: PROFILE / SETTINGS
+         ═══════════════════════════════════════ -->
+    <div class="screen" id="screen-profile">
+        <div class="setup-header" style="padding-top:10px;">
+            <div class="profile-avatar" id="profileAvatar">A</div>
+            <h1 id="profileName">Profile</h1>
+            <p id="profileEmail">user@example.com</p>
+        </div>
+
+        <!-- BMI Card -->
+        <div class="bmi-card glass-card mb-20" id="bmiCard">
+            <div class="bmi-header">
+                <span>📏 Body Mass Index</span>
+                <span class="bmi-value" id="bmiValue">—</span>
+            </div>
+            <div class="bmi-bar">
+                <div class="bmi-indicator" id="bmiIndicator" style="left:50%;"></div>
+                <div class="bmi-zone underweight">Under</div>
+                <div class="bmi-zone normal">Normal</div>
+                <div class="bmi-zone overweight">Over</div>
+                <div class="bmi-zone obese">Obese</div>
+            </div>
+            <div class="bmi-status" id="bmiStatus">Complete your profile to see BMI</div>
+        </div>
+
+        <div class="glass-card mb-20">
+            <div class="profile-stat-row">
+                <span class="profile-stat-label">🎯 Goal</span>
+                <span class="profile-stat-value" id="profileGoal">—</span>
+            </div>
+            <div class="profile-stat-row">
+                <span class="profile-stat-label">🥗 Diet</span>
+                <span class="profile-stat-value" id="profileDiet">—</span>
+            </div>
+            <div class="profile-stat-row">
+                <span class="profile-stat-label">⚡ Activity</span>
+                <span class="profile-stat-value" id="profileActivity">—</span>
+            </div>
+            <div class="profile-stat-row">
+                <span class="profile-stat-label">🔥 Daily Target</span>
+                <span class="profile-stat-value" id="profileCalTarget">—</span>
+            </div>
+            <div class="profile-stat-row" style="border-bottom:none;">
+                <span class="profile-stat-label">⭐ Total Points</span>
+                <span class="profile-stat-value accent" id="profilePoints">0</span>
+            </div>
+        </div>
+
+        <div class="section-title">⚖️ Weight Progress</div>
+        <div class="glass-card mb-20">
+            <div class="weight-tracker-input mb-16">
+                <input type="number" id="weightInput" class="input-field" placeholder="Enter weight (kg)" step="0.1">
+                <button class="btn btn-success" onclick="logWeight()">Update</button>
+            </div>
+            <div id="weightChartContainer" style="height:150px;display:flex;align-items:flex-end;gap:5px;padding-top:10px;">
+                <div class="chart-loading">Loading progress...</div>
+            </div>
+        </div>
+
+        <div class="section-title">🏅 All Badges</div>
+        <div class="badge-grid" id="profileBadges"></div>
+
+        <button class="btn btn-ghost btn-full mt-20" onclick="editProfile()" id="btn-edit-profile">
+            ✏️ Edit Profile
+        </button>
+        <button class="btn btn-ghost btn-full mt-10" onclick="logout()" id="btn-logout" style="color:var(--accent-red);">
+            🚪 Log Out
+        </button>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         BOTTOM NAVIGATION
+         ═══════════════════════════════════════ -->
+    <nav class="bottom-nav" id="bottomNav" style="display:none;">
+        <button class="nav-item active" onclick="navigate('dashboard')" id="nav-dashboard">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">Home</span>
+        </button>
+        <button class="nav-item" onclick="navigate('mealplan')" id="nav-mealplan">
+            <span class="nav-icon">📅</span>
+            <span class="nav-label">Meals</span>
+        </button>
+        <button class="nav-item scan-fab" onclick="navigate('scanner')" id="nav-scanner">
+            <span class="nav-icon">📸</span>
+            <span class="nav-label">Scan</span>
+        </button>
+        <button class="nav-item" onclick="navigate('profile')" id="nav-profile">
+            <span class="nav-icon">👤</span>
+            <span class="nav-label">Profile</span>
+        </button>
+    </nav>
+
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

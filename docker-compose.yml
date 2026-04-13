@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  nutrimind:
+    build: .
+    container_name: nutrimind_app
+    ports:
+      - "8000:8000"
+    volumes:
+      # This persists your sqlite database on your host machine inside a 'data' folder
+      - ./data:/app/data
+    environment:
+      - PORT=8000
+      - DATABASE_PATH=/app/data/nutrimind.db
+    restart: unless-stopped
